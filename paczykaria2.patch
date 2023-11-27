@@ -1,0 +1,105 @@
+--- a/mingw-config
++++ b/mingw-config
+@@ -75,6 +75,8 @@
+     --without-libgcrypt \
+     --without-libnettle \
+     --with-cppunit-prefix=$PREFIX \
++    CFLAGS="-g0 -O3" \
++    CXXFLAGS="-g0 -O3" \
+     ARIA2_STATIC=yes \
+     CPPFLAGS="-I$PREFIX/include" \
+     LDFLAGS="-L$PREFIX/lib" \
+--- a/src/ConsoleStatCalc.cc
++++ b/src/ConsoleStatCalc.cc
+@@ -189,8 +189,9 @@
+ #endif // ENABLE_BITTORRENT
+ 
+   if (!rg->downloadFinished()) {
+-    o << " DL:" << colors::green << sizeFormatter(stat.downloadSpeed) << "B"
++    o << " DL:" << colors::green << sizeFormatter(stat.downloadSpeed) << "B/s"
+       << colors::clear;
++    o << " DL(1k=1000):" << colors::green << util::abbrevSizeBits1000(stat.downloadSpeed) << "b/s" << colors::clear;
+   }
+   if (stat.sessionUploadLength > 0) {
+     o << " UL:" << colors::cyan << sizeFormatter(stat.uploadSpeed) << "B"
+--- a/src/OptionHandlerFactory.cc
++++ b/src/OptionHandlerFactory.cc
+@@ -440,7 +440,7 @@
+   {
+     OptionHandler* op(new NumberOptionHandler(PREF_MAX_CONNECTION_PER_SERVER,
+                                               TEXT_MAX_CONNECTION_PER_SERVER,
+-                                              "1", 1, 16, 'x'));
++                                              "1", 1, 256, 'x'));
+     op->addTag(TAG_BASIC);
+     op->addTag(TAG_FTP);
+     op->addTag(TAG_HTTP);
+--- a/src/util.cc
++++ b/src/util.cc
+@@ -1228,6 +1228,10 @@
+                                   const char** charsetp, size_t* charsetlenp,
+                                   const char* in, size_t len, bool defaultUTF8)
+ {
++  if (len>0 && in[len-1]==';'){
++    A2_LOG_NOTICE("Content-Disposition header field (RFC1806) minor corruption (trailing ';') - fixing");
++    --len;
++  }
+   const char *p = in, *eop = in + len, *mark_first = nullptr,
+              *mark_last = nullptr;
+   int state = CD_BEFORE_DISPOSITION_TYPE;
+@@ -1824,6 +1828,34 @@
+   return filename;
+ }
+ 
++std::string abbrevSizeBits1000(int64_t size)
++{
++  static const char* UNITS[] = {"", "K", "M", "G"};
++  int64_t t = size*8;
++  size_t uidx = 0;
++  int r = 0;
++  while (t >= static_cast<int64_t>(1000) &&
++         uidx + 1 < sizeof(UNITS) / sizeof(UNITS[0])) {
++    lldiv_t d = lldiv(t, 1000);
++    t = d.quot;
++    r = d.rem;
++    ++uidx;
++  }
++  if (uidx + 1 < sizeof(UNITS) / sizeof(UNITS[0]) && t >= 900) {
++    ++uidx;
++    r = t;
++    t = 0;
++  }
++  std::string res;
++  res += itos(t, true);
++  if (uidx > 0) {
++    res += ".";
++    res += itos(r * 100 / 1000);
++  }
++  res += UNITS[uidx];
++  return res;
++}
++
+ int64_t getRealSize(const std::string& sizeWithUnit)
+ {
+   std::string::size_type p = sizeWithUnit.find_first_of("KMkm");
+@@ -1877,9 +1909,9 @@
+   }
+   std::string res;
+   res += itos(t, true);
+-  if (t < 10 && uidx > 0) {
++  if (uidx > 0) {
+     res += ".";
+-    res += itos(r * 10 / 1_k);
++    res += itos(r * 100 / 1_k);
+   }
+   res += UNITS[uidx];
+   return res;
+--- a/src/util.h
++++ b/src/util.h
+@@ -362,6 +362,7 @@
+ int64_t getRealSize(const std::string& sizeWithUnit);
+ 
+ std::string abbrevSize(int64_t size);
++std::string abbrevSizeBits1000(int64_t size);
+ 
+ template <typename InputIterator, typename Output>
+ void toStream(InputIterator first, InputIterator last, Output& os)

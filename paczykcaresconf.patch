@@ -1,0 +1,55 @@
+--- a/configure
++++ b/configure
+@@ -0,9 +0,9 @@
+ 
+       curl_cv_func_recv_args="unknown"
+       for recv_retv in 'int' 'ssize_t'; do
+-        for recv_arg1 in 'int' 'ssize_t' 'SOCKET'; do
++        for recv_arg1 in 'SOCKET' 'int' 'ssize_t'; do
+           for recv_arg2 in 'char *' 'void *'; do
+-            for recv_arg3 in 'size_t' 'int' 'socklen_t' 'unsigned int'; do
++            for recv_arg3 in 'int' 'size_t' 'socklen_t' 'unsigned int'; do
+               for recv_arg4 in 'int' 'unsigned int'; do
+                 if test "$curl_cv_func_recv_args" = "unknown"; then
+                   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+@@ -0,12 +0,12 @@
+ 
+       curl_cv_func_recvfrom_args="unknown"
+       for recvfrom_retv in 'int' 'ssize_t'; do
+-        for recvfrom_arg1 in 'int' 'ssize_t' 'SOCKET'; do
++        for recvfrom_arg1 in 'SOCKET' 'int' 'ssize_t'; do
+           for recvfrom_arg2 in 'char *' 'void *'; do
+-            for recvfrom_arg3 in 'size_t' 'int' 'socklen_t' 'unsigned int'; do
++            for recvfrom_arg3 in 'int' 'size_t' 'socklen_t' 'unsigned int'; do
+               for recvfrom_arg4 in 'int' 'unsigned int'; do
+                 for recvfrom_arg5 in 'struct sockaddr *' 'void *' 'const struct sockaddr *'; do
+-                  for recvfrom_arg6 in 'socklen_t *' 'int *' 'unsigned int *' 'size_t *' 'void *'; do
++                  for recvfrom_arg6 in 'int *' 'socklen_t *' 'unsigned int *' 'size_t *' 'void *'; do
+                     if test "$curl_cv_func_recvfrom_args" = "unknown"; then
+                       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+@@ -0,9 +0,9 @@
+ 
+       curl_cv_func_send_args="unknown"
+       for send_retv in 'int' 'ssize_t'; do
+-        for send_arg1 in 'int' 'ssize_t' 'SOCKET'; do
+-          for send_arg2 in 'char *' 'void *' 'const char *' 'const void *'; do
+-            for send_arg3 in 'size_t' 'int' 'socklen_t' 'unsigned int'; do
++        for send_arg1 in 'SOCKET' 'int' 'ssize_t'; do
++          for send_arg2 in 'const char *' 'char *' 'void *' 'const void *'; do
++            for send_arg3 in 'int' 'size_t' 'socklen_t' 'unsigned int'; do
+               for send_arg4 in 'int' 'unsigned int'; do
+                 if test "$curl_cv_func_send_args" = "unknown"; then
+                   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+@@ -0,9 +0,9 @@
+ else $as_nop
+ 
+       curl_cv_func_getnameinfo_args="unknown"
+-      for gni_arg1 in 'struct sockaddr *' 'const struct sockaddr *' 'void *'; do
++      for gni_arg1 in 'const struct sockaddr *' 'struct sockaddr *' 'void *'; do
+         for gni_arg2 in 'socklen_t' 'size_t' 'int'; do
+-          for gni_arg46 in 'size_t' 'int' 'socklen_t' 'unsigned int' 'DWORD'; do
++          for gni_arg46 in 'DWORD' 'size_t' 'int' 'socklen_t' 'unsigned int'; do
+             for gni_arg7 in 'int' 'unsigned int'; do
+               if test "$curl_cv_func_getnameinfo_args" = "unknown"; then
+                 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
