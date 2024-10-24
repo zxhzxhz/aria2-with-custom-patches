@@ -1,3 +1,18 @@
+--- a/src/util.cc
++++ b/src/util.cc
+@@ -1555,6 +1555,12 @@ ssize_t parse_content_disposition(char* dest, size_t destlen,
+   case CD_AFTER_VALUE:
+   case CD_TOKEN:
+     return destlen - dlen;
++  case CD_BEFORE_DISPOSITION_PARM_NAME:
++    if ((flags & CD_FILENAME_FOUND) == 0 &&
++        (flags & CD_EXT_FILENAME_FOUND) == 0) {
++      return -1;
++    }
++    return destlen - dlen;
+   case CD_VALUE_CHARS:
+     if (charset == CD_ENC_UTF8 && dfa_state != UTF8_ACCEPT) {
+       return -1;
 --- a/mingw-config
 +++ b/mingw-config
 @@ -75,6 +75,8 @@
